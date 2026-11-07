@@ -372,13 +372,15 @@
     font-weight: var(--nw, 400);
     font-size: calc(6.2cqw * var(--ns, 1) / 1.55 * 1.1);
     line-height: 1.05;
-    color: #963B5C;
+    color: #9E3E5C;
     display: none;
   }
   /* Nişan sonrası: başlık sayacın üstünde, teşekkür altında */
-  .cd-top { top: 71.8%; bottom: auto; }
+  .cd-top { top: calc(71.8% + 5px); bottom: auto; }
+  .cd-done.today { top: calc(82.4% - 1.5px); font-size: calc(6.2cqw * var(--ns, 1) / 1.55 * 1.1 - 1.2px); }
   .cd-done.thanks {
-    top: 81.2%;
+    top: calc(81.2% + 3px);
+    color: #9E3E5C;
     font-family: "Inter Davet", "Inter", var(--f-sans);
     font-style: italic;
     font-weight: 300;
@@ -1020,6 +1022,7 @@
         const done = document.getElementById('cdDone');
         if (now() < nextDay) {
           done.textContent = 'Bugün o mutlu gün!';
+          done.classList.add('today');
         } else {
           const top = document.getElementById('cdTop');
           top.textContent = 'Nişanlandık!';
