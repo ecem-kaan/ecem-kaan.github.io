@@ -362,12 +362,28 @@
     letter-spacing: .02em;
     color: #A56276;
   }
+  /* Geri sayım bitince: kutular 00'da kalır, altında güne göre mesaj */
   .cd-done {
-    top: 77.6%;
-    font-family: var(--f-script);
-    font-size: 6.51cqw;
+    top: 82.4%;
+    left: 10%;
+    right: 10%;
+    font-family: var(--f-names);
+    font-style: var(--nst, normal);
+    font-weight: var(--nw, 400);
+    font-size: calc(6.2cqw * var(--ns, 1) / 1.55 * 1.1);
+    line-height: 1.05;
     color: #963B5C;
     display: none;
+  }
+  .cd-done small {
+    display: block;
+    margin-top: .6cqw;
+    font-family: "Inter Davet", "Inter", var(--f-sans);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 2.6cqw;
+    line-height: 1.3;
+    color: #963B5C;
   }
 
   /* ---------- İmza ---------- */
@@ -709,7 +725,7 @@
     <div class="cell"><span class="num" id="m">00</span><span class="lbl">Dakika</span></div>
     <div class="cell"><span class="num" id="s">00</span><span class="lbl">Saniye</span></div>
   </div>
-  <p class="layer cd-done" id="cdDone">Bugün o mutlu gün!</p>
+  <p class="layer cd-done" id="cdDone"></p>
 
 
   <div class="petals" id="petals" aria-hidden="true"></div>
@@ -968,6 +984,12 @@
   /* ---------- Geri sayım (Türkiye saati, UTC+3) ---------- */
   (function () {
     const target = new Date('2026-12-05T19:00:00+03:00').getTime();
+    const nextDay = new Date('2026-12-06T00:00:00+03:00').getTime();
+    // Önizleme için: ?tarih=gun (nişan günü) | ?tarih=sonra (nişandan sonra). Normal linkte gerçek saat kullanılır.
+    const q = (new URLSearchParams(location.search).get('tarih') || '').toLowerCase();
+    const offset = q === 'gun' ? new Date('2026-12-05T20:30:00+03:00').getTime() - Date.now()
+                 : q === 'sonra' ? new Date('2026-12-07T12:00:00+03:00').getTime() - Date.now() : 0;
+    const now = () => Date.now() + offset;
     const els = {};
     ['d', 'h', 'm', 's'].forEach(k => (els[k] = document.getElementById(k)));
     const pad = n => String(n).padStart(2, '0');
@@ -981,10 +1003,14 @@
       el.classList.add('tick');
     }
     function update() {
-      const diff = target - Date.now();
+      const diff = target - now();
       if (diff <= 0) {
-        document.getElementById('countdown').style.visibility = 'hidden';
-        document.getElementById('cdDone').style.display = 'block';
+        ['d', 'h', 'm', 's'].forEach(k => (els[k].textContent = '00'));
+        const done = document.getElementById('cdDone');
+        done.innerHTML = now() < nextDay
+          ? 'Bugün o mutlu gün!'
+          : 'Nişanlandık!<small>Bizimle olduğunuz için<br>teşekkür ederiz ♥</small>';
+        done.style.display = 'block';
         clearInterval(timer);
         return;
       }
