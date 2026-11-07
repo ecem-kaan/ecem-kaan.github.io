@@ -376,7 +376,7 @@
     display: none;
   }
   /* Nişan sonrası: başlık sayacın üstünde, teşekkür altında */
-  .cd-top { top: calc(71.8% + 13px); bottom: auto; }
+  .cd-top { top: calc(71.8% + 18px); bottom: auto; }
   .cd-done.today { top: calc(82.4% - 3.5px); font-size: calc(6.2cqw * var(--ns, 1) / 1.55 * 1.1 - 1.2px); }
   .cd-done.thanks {
     top: calc(81.2% + 6px);
@@ -1020,16 +1020,12 @@
       if (diff <= 0) {
         ['d', 'h', 'm', 's'].forEach(k => (els[k].textContent = '00'));
         const done = document.getElementById('cdDone');
-        if (now() < nextDay) {
-          done.textContent = 'Bugün o mutlu gün!';
-          done.classList.add('today');
-        } else {
-          const top = document.getElementById('cdTop');
-          top.textContent = 'Nişanlandık!';
-          top.style.display = 'block';
-          done.classList.add('thanks');
-          done.innerHTML = 'Bizimle olduğunuz için<br>teşekkür ederiz ♥';
-        }
+        const top = document.getElementById('cdTop');
+        const gun = now() < nextDay;
+        top.textContent = gun ? 'Bugün o mutlu gün!' : 'Nişanlandık!';
+        top.style.display = 'block';
+        done.classList.add('thanks');
+        done.innerHTML = gun ? '♥' : 'Bizimle olduğunuz için<br>teşekkür ederiz ♥';
         done.style.display = 'block';
         clearInterval(timer);
         return;
