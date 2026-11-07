@@ -375,6 +375,16 @@
     color: #963B5C;
     display: none;
   }
+  /* Nişan sonrası: başlık sayacın üstünde, teşekkür altında */
+  .cd-top { top: 71.8%; bottom: auto; }
+  .cd-done.thanks {
+    top: 81.2%;
+    font-family: "Inter Davet", "Inter", var(--f-sans);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 2.75cqw;
+    line-height: 1.35;
+  }
   .cd-done small {
     display: block;
     margin-top: .6cqw;
@@ -725,6 +735,7 @@
     <div class="cell"><span class="num" id="m">00</span><span class="lbl">Dakika</span></div>
     <div class="cell"><span class="num" id="s">00</span><span class="lbl">Saniye</span></div>
   </div>
+  <p class="layer cd-done cd-top" id="cdTop"></p>
   <p class="layer cd-done" id="cdDone"></p>
 
 
@@ -1007,9 +1018,15 @@
       if (diff <= 0) {
         ['d', 'h', 'm', 's'].forEach(k => (els[k].textContent = '00'));
         const done = document.getElementById('cdDone');
-        done.innerHTML = now() < nextDay
-          ? 'Bugün o mutlu gün!'
-          : 'Nişanlandık!<small>Bizimle olduğunuz için<br>teşekkür ederiz ♥</small>';
+        if (now() < nextDay) {
+          done.textContent = 'Bugün o mutlu gün!';
+        } else {
+          const top = document.getElementById('cdTop');
+          top.textContent = 'Nişanlandık!';
+          top.style.display = 'block';
+          done.classList.add('thanks');
+          done.innerHTML = 'Bizimle olduğunuz için<br>teşekkür ederiz ♥';
+        }
         done.style.display = 'block';
         clearInterval(timer);
         return;
