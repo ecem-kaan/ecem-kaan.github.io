@@ -974,7 +974,30 @@
       btn.classList.toggle('muted', !musicOn);
       btn.setAttribute('aria-label', musicOn ? 'Müziği kapat' : 'Müziği aç');
     });
-    document.addEventListener('visibilitychange', () => { document.hidden ? ctx.suspend() : ctx.resume(); });
+    // Çıkarken ses aniden kesilince hoparlörde "cızt" olur: önce çok kısa kısılır, sonra durdurulur.
+    // Geri dönünce yine sessizden yumuşakça açılır.
+    let hideTimer = 0;
+    function fadeOutAndPause() {
+      clearTimeout(hideTimer);
+      const t = ctx.currentTime, g = master.gain;
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(g.value, t);
+      g.setTargetAtTime(0, t, .025);          // ~120 ms'de sessize iner
+      hideTimer = setTimeout(() => { if (document.hidden) ctx.suspend(); }, 180);
+    }
+    function resumeAndFadeIn() {
+      clearTimeout(hideTimer);
+      const go = () => {
+        const t = ctx.currentTime, g = master.gain;
+        g.cancelScheduledValues(t);
+        g.setValueAtTime(0, t);
+        if (musicOn) g.linearRampToValueAtTime(MUSIC_VOL, t + 1.5);
+      };
+      ctx.state === 'suspended' ? ctx.resume().then(go, go) : go();
+    }
+    document.addEventListener('visibilitychange', () => { document.hidden ? fadeOutAndPause() : resumeAndFadeIn(); });
+    window.addEventListener('pagehide', fadeOutAndPause);
+    window.addEventListener('pageshow', e => { if (e.persisted) resumeAndFadeIn(); });
   }
 
   // Müzik dosyanın içinde hazır kayıt olarak duruyor (16 kHz mono, kusursuz döngü).
